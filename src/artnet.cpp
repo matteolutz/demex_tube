@@ -5,7 +5,7 @@ uint8_t dmxData[512];
 
 void handleArtNetPacket(uint16_t packetType)
 {
-    if (packetType == ART_POLL && config != nullptr)
+    if (packetType == ART_POLL)
     {
         return;
         artnet.getUdp().beginPacket(artnet.getSenderIp(), ART_NET_PORT);
@@ -27,8 +27,8 @@ void handleArtNetPacket(uint16_t packetType)
         pollReply[16] = 0; // Firmware version high byte
         pollReply[17] = 1; // Firmware version low byte
 
-        pollReply[18] = config->universe >> 8;
-        pollReply[19] = (config->universe & 0xF0) >> 4;
+        pollReply[18] = config.universe >> 8;
+        pollReply[19] = (config.universe & 0xF0) >> 4;
 
         pollReply[20] = 0; // Oem high byte
         pollReply[21] = 0; // Oem low byte
@@ -52,7 +52,7 @@ void handleArtNetPacket(uint16_t packetType)
 
 void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t *data)
 {
-    if (config == nullptr || universe != config->universe)
+    if (universe != config.universe)
     {
         return;
     }

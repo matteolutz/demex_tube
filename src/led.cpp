@@ -45,16 +45,13 @@ void ledError()
 
 void ledUpdate()
 {
-    if (config == nullptr)
-        return;
-
-    uint8_t mode = static_cast<uint8_t>(config->mode);
+    uint8_t mode = static_cast<uint8_t>(config.mode);
     (*modeLut[mode])();
 }
 
 void ledUpdateRGBW()
 {
-    uint16_t startChannel = config->channel - 1; // Convert to 0-based index
+    uint16_t startChannel = config.address - 1; // Convert to 0-based index
 
     uint8_t r = dmxData[startChannel];
     uint8_t g = dmxData[startChannel + 1];
@@ -74,13 +71,13 @@ void ledUpdateRGBW()
 
 void ledUpdateRGBWPixel()
 {
-    uint16_t startChannel = config->channel - 1; // Convert to 0-based index
+    uint16_t startChannel = config.address - 1; // Convert to 0-based index
     uint16_t numPixels = strip.numPixels();
 
     uint8_t intensity = dmxData[startChannel + (numPixels * 4)];
     uint8_t strobe = dmxData[startChannel + (numPixels * 4) + 1];
     uint8_t strobeMode = dmxData[startChannel + (numPixels * 4) + 2];
-    float strobeDuration = (dmxData[startChannel + (numPixels * 4) + 2] / 255.0f) * 2.0f - 1.0f;
+    float strobeDuration = (dmxData[startChannel + (numPixels * 4) + 3] / 255.0f) * 2.0f - 1.0f;
 
     strip.setBrightness(255);
 
@@ -91,7 +88,7 @@ void ledUpdateRGBWPixel()
         uint8_t b = dmxData[startChannel + (i * 4) + 2];
         uint8_t w = dmxData[startChannel + (i * 4) + 3];
 
-        uint8_t intens = applyStrobe(intensity, strobe, strobeMode, strobeDuration);
+        uint8_t intens = applyStrobe(intensity, strobe, i * strobeMode, strobeDuration);
 
         r = (r * intens) / 255;
         g = (g * intens) / 255;

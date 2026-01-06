@@ -35,7 +35,10 @@ enum class Mode
      * - (n+3) StrobeDuration for all pixels
      *
      */
-    RGBW_PIXEL = 1
+    RGBW_PIXEL = 1,
+
+    First = RGBW,
+    Last = RGBW_PIXEL
 };
 
 struct Config
@@ -43,13 +46,59 @@ struct Config
     /// Universe to listen to (starting from 0)
     uint16_t universe;
 
-    /// DMX channel to start from (1-512)
-    uint16_t channel;
+    /// DMX address to start from (1-512)
+    uint16_t address;
 
     /// DMX mode
     Mode mode;
+
+    /// Signature
+    uint32_t signature = 0xDE1234;
+
+    /// XOR checksum
+    uint32_t checksum;
 };
 
-extern Config *config;
+#define CONFIG_JSON_BUFFER_SIZE 128
+
+extern Config config;
+
+inline Config getDefaultConfig()
+{
+    Config cfg;
+    cfg.universe = 0;
+    cfg.address = 1;
+    cfg.mode = Mode::RGBW_PIXEL;
+    return cfg;
+}
+
+/// @brief Read config from EEPROM
+/// @param cfg Config
+void loadConfig(Config &cfg);
+
+/// @brief Calculate config checksum and save to EEPROM
+/// @param cfg Config
+void saveConfig(Config &cfg);
+
+/// @brief Verify the config checksum
+/// @param cfg Config
+/// @return wheter the config is valid
+bool verifyConfig(const Config &cfg);
+
+/// @brief Calculate the config checksum
+/// @param cfg Config
+/// @return Config XOR checksum
+uint32_t calculateConfigChecksum(const Config &cfg);
+
+/// @brief Serialize config to JSON string
+/// @param cfg Config
+/// @param buffer Buffer to write to
+/// @param bufferSize Buffer size
+/// @return Bytes written to buffer
+int serializeConfig(const Config &cfg, char *buffer, size_t bufferSize);
+
+/// @brief Print serialized config to Serial
+/// @param cfg Config
+void printConfig(const Config &cfg);
 
 #endif // DEMEX_TUBE_CONFIG_H
