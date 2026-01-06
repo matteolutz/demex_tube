@@ -13,6 +13,8 @@ enum class Mode
      * 4. White
      * 5. Intensity (Dimmer)
      * 6. Strobe
+     * 7. StrobeMode
+     * 8. StrobeDuration
      *
      */
     RGBW = 0,
@@ -29,6 +31,8 @@ enum class Mode
      *  ...and so on for all pixels
      * - (n) Intensity (Dimmer) for all pixels
      * - (n+1) Strobe for all pixels
+     * - (n+2) StrobeMode for all pixels
+     * - (n+3) StrobeDuration for all pixels
      *
      */
     RGBW_PIXEL = 1

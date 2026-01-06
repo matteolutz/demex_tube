@@ -3,6 +3,7 @@
 #include "config.h"
 #include "artnet.h"
 #include "strobe.h"
+#include "utils.h"
 
 void ledUpdateRGBW();
 void ledUpdateRGBWPixel();
@@ -56,8 +57,12 @@ void ledUpdateRGBW()
 
     uint8_t intensity = dmxData[startChannel + 4];
     uint8_t strobe = dmxData[startChannel + 5];
+    uint8_t strobeMode = dmxData[startChannel + 6];
+    UNUSED(strobeMode);
+    float strobeDuration = (dmxData[startChannel + 7] / 255.0f) * 2.0f - 1.0f;
 
-    ledBrightness(applyStrobe(intensity, strobe, 0));
+    ledBrightness(applyStrobe(intensity, strobe, 0, strobeDuration));
+
     ledColor(r, g, b, w);
 }
 
@@ -68,7 +73,10 @@ void ledUpdateRGBWPixel()
 
     uint8_t intensity = dmxData[startChannel + (numPixels * 4)];
     uint8_t strobe = dmxData[startChannel + (numPixels * 4) + 1];
-    strip.setBrightness(applyStrobe(intensity, strobe, 0));
+    uint8_t strobeMode = dmxData[startChannel + (numPixels * 4) + 2];
+    float strobeDuration = (dmxData[startChannel + (numPixels * 4) + 2] / 255.0f) * 2.0f - 1.0f;
+
+    strip.setBrightness(255);
 
     for (uint16_t i = 0; i < numPixels; i++)
     {
@@ -76,6 +84,13 @@ void ledUpdateRGBWPixel()
         uint8_t g = dmxData[startChannel + (i * 4) + 1];
         uint8_t b = dmxData[startChannel + (i * 4) + 2];
         uint8_t w = dmxData[startChannel + (i * 4) + 3];
+
+        uint8_t intens = applyStrobe(intensity, strobe, strobeMode, strobeDuration);
+
+        r = (r * intens) / 255;
+        g = (g * intens) / 255;
+        b = (b * intens) / 255;
+        w = (w * intens) / 255;
 
         strip.setPixelColor(i, r, g, b, w);
     }
