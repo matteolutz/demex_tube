@@ -31,6 +31,12 @@ void ledSuccess()
     ledColor(0, 255, 0, 0);
 }
 
+void ledWarning()
+{
+    ledBrightness(255);
+    ledColor(255, 139, 0, 0);
+}
+
 void ledError()
 {
     ledBrightness(255);

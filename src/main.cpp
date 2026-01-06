@@ -4,6 +4,7 @@
 #include "config.h"
 #include "artnet.h"
 #include "led.h"
+#include "utils.h"
 
 #include <WiFiManager.h>
 #include <ArtnetWifi.h>
@@ -11,12 +12,16 @@
 
 Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, LED_TYPE);
 
+char apName[24];
 WiFiManager wifiManager;
+
 ArtnetWifi artnet;
 
 Config *config = nullptr;
 
 ulong lastLedUpdate = 0;
+
+void apCallback(WiFiManager *wm);
 
 void setup()
 {
@@ -33,11 +38,25 @@ void setup()
   config->channel = 1;
   config->mode = Mode::RGBW;
 
-  Serial.println("Autoconnecting to WiFi...");
-  wifiManager.setAPStaticIPConfig(IPAddress(192, 168, 1, 1), IPAddress(192, 168, 1, 1), IPAddress(255, 255, 255, 0));
-  if (!wifiManager.autoConnect(AP_NAME))
+  pinMode(FORCE_AP_MODE_PIN, INPUT_PULLUP);
+
+  getAPName(apName, sizeof(apName));
+
+  wifiManager.setAPStaticIPConfig(IPAddress(2, 0, 0, 1), IPAddress(2, 0, 0, 1), IPAddress(255, 0, 0, 0));
+  wifiManager.setAPCallback(apCallback);
+
+  if (digitalRead(FORCE_AP_MODE_PIN) == LOW)
   {
-    Serial.println("Failed to connect, starting AP mode...");
+    Serial.println("Forcing AP mode...");
+    wifiManager.startConfigPortal(apName);
+  }
+  else
+  {
+    Serial.println("Autoconnecting to WiFi...");
+    if (!wifiManager.autoConnect(apName))
+    {
+      Serial.println("Failed to connect, starting AP mode...");
+    }
   }
 
   artnet.setArtDmxCallback(onDmxFrame);
@@ -57,4 +76,11 @@ void loop()
     ledUpdate();
     lastLedUpdate = millis();
   }
+}
+
+void apCallback(WiFiManager *wm)
+{
+  Serial.print("Entered AP mode: ");
+  Serial.println(wm->getConfigPortalSSID());
+  ledWarning();
 }

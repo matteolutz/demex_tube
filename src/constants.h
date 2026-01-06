@@ -1,9 +1,10 @@
 #ifndef DEMEX_TUBE_CONSTANTS
 #define DEMEX_TUBE_CONSTANTS
 
+#include <Arduino.h>
 #include <Adafruit_NeoPixel.h>
 
-#define AP_NAME "Demex_Tube"
+#define FORCE_AP_MODE_PIN D5
 
 // #define NUM_LEDS 25
 #define NUM_LEDS 20
