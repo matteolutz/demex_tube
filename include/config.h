@@ -41,6 +41,8 @@ enum class Mode
     Last = RGBW_PIXEL
 };
 
+#define CONFIG_SIGNATURE 0xDE1234
+
 struct Config
 {
     /// Universe to listen to (starting from 0)
@@ -53,7 +55,7 @@ struct Config
     Mode mode;
 
     /// Signature
-    uint32_t signature = 0xDE1234;
+    uint32_t signature = CONFIG_SIGNATURE;
 
     /// XOR checksum
     uint32_t checksum;

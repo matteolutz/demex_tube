@@ -23,7 +23,7 @@ void saveConfig(Config &cfg)
 
 bool verifyConfig(const Config &cfg)
 {
-    if (cfg.signature != 0xDE1234)
+    if (cfg.signature != CONFIG_SIGNATURE)
     {
         return false;
     }
