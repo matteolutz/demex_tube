@@ -4,6 +4,7 @@
 #include "artnet.h"
 #include "strobe.h"
 #include "utils.h"
+#include "gamma.h"
 
 void ledUpdateRGBW();
 void ledUpdateRGBWPixel();
@@ -12,7 +13,7 @@ void (*modeLut[])() = {
 
 void ledBrightness(uint8_t brightness)
 {
-    strip.setBrightness(brightness);
+    strip.setBrightness(applyGammaCorrection(brightness));
 }
 
 void ledColor(uint8_t r, uint8_t g, uint8_t b, uint8_t w)
@@ -88,7 +89,7 @@ void ledUpdateRGBWPixel()
         uint8_t b = dmxData[startChannel + (i * 4) + 2];
         uint8_t w = dmxData[startChannel + (i * 4) + 3];
 
-        uint8_t intens = applyStrobe(intensity, strobe, i * strobeMode, strobeDuration);
+        uint8_t intens = applyGammaCorrection(applyStrobe(intensity, strobe, i * strobeMode, strobeDuration));
 
         r = (r * intens) / 255;
         g = (g * intens) / 255;
