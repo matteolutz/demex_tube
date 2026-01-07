@@ -101,4 +101,11 @@ int serializeConfig(const Config &cfg, char *buffer, size_t bufferSize);
 /// @param cfg Config
 void printConfig(const Config &cfg);
 
+/// @brief Generate configuration web UI
+/// @param buffer Buffer to write to
+/// @param bufferSize Buffer size
+/// @param cfg Config object to use
+/// @return Bytes written to the buffer
+int generateConfigUI(char *buffer, size_t bufferSize, const Config &cfg);
+
 #endif // DEMEX_TUBE_CONFIG_H

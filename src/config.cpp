@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <Arduino.h>
+#include <WiFiManager.h>
 #include <EEPROM.h>
 
 void loadConfig(Config &cfg)
@@ -56,4 +57,45 @@ void printConfig(const Config &cfg)
     serializeConfig(cfg, buffer, sizeof(buffer));
     Serial.print("Config: ");
     Serial.println(buffer);
+}
+
+int generateConfigUI(char *buffer, size_t bufferSize, const Config &cfg)
+{
+    return snprintf(buffer, bufferSize,
+                    "<html>"
+                    "<head>"
+                    "<meta name='format-detection' content='telephone=no'>"
+                    "<meta charset='UTF-8'>"
+                    "<meta  name='viewport' content='width=device-width,initial-scale=1,user-scalable=no'/>"
+                    "<title>Demex Tube DMX Config</title>"
+                    "%s"
+                    "</head>"
+                    "<body class='{c}'>"
+                    "<div class='wrap'>"
+                    "<form method='post' action='/demex'>"
+
+                    "<label for='universe'>Universe (0-65535):</label><br/>"
+                    "<input type='number' id='universe' name='universe' min='0' max='65535' value='%u'/><br/><br/>"
+
+                    "<label for='address'>DMX Start Address (1-512):</label><br/>"
+                    "<input type='number' id='address' name='address' min='1' max='512' value='%u'/><br/><br/>"
+
+                    "<label for='mode'>DMX Mode:</label><br/>"
+                    "<select id='mode' name='mode'>"
+                    "</select><br/><br/>"
+
+                    "<input type='hidden' name='ui' value='1' />"
+
+                    "<input type='submit' value='Save'/>"
+
+                    "</form>"
+                    "<script>"
+                    "const selectedMode = %d; const modes = ['RGBW', 'RGBW Pixel'];"
+                    "for (const mode of modes) { document.getElementById('mode').innerHTML += `<option value='${modes.indexOf(mode)}'${selectedMode === modes.indexOf(mode) ? ' selected' : ''}>${mode}</option>`; }"
+                    "</script>"
+                    "</div>"
+                    "</body>"
+                    "</html>",
+                    HTTP_STYLE,
+                    config.universe, config.address, static_cast<uint32_t>(config.mode));
 }
