@@ -1,7 +1,7 @@
 #include "led.h"
 
 #include "config.h"
-#include "artnet.h"
+#include "artnet_handler.h"
 #include "strobe.h"
 #include "utils.h"
 #include "gamma.h"

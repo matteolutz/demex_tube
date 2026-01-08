@@ -97,5 +97,5 @@ int generateConfigUI(char *buffer, size_t bufferSize, const Config &cfg)
                     "</body>"
                     "</html>",
                     HTTP_STYLE,
-                    config.universe, config.address, static_cast<uint32_t>(config.mode));
+                    cfg.universe, cfg.address, static_cast<uint32_t>(cfg.mode));
 }

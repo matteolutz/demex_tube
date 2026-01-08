@@ -58,7 +58,7 @@ struct Config
     uint32_t signature = CONFIG_SIGNATURE;
 
     /// XOR checksum
-    uint32_t checksum;
+    uint32_t checksum = 0;
 };
 
 #define CONFIG_JSON_BUFFER_SIZE 128

@@ -2,25 +2,30 @@
 
 #include "constants.h"
 #include "config.h"
-#include "artnet.h"
+#include "artnet_handler.h"
 #include "led.h"
 #include "utils.h"
 
 #include <WiFiManager.h>
-#include <ArtnetWifi.h>
 #include <Adafruit_NeoPixel.h>
+#include <Artnet.h>
 
 Adafruit_NeoPixel strip(NUM_LEDS, LED_PIN, LED_TYPE);
 
-char apName[24];
+char name[24];
 WiFiManager wifiManager;
 
-ArtnetWifi artnet;
+Artnet artnet;
 
-Config config = {0};
+Config config = {
+    .universe = 1,
+    .address = 1,
+    .mode = Mode::RGBW,
+};
 
 ulong lastLedUpdate = 0;
 
+void update();
 void configureWifiManager();
 void apCallback(WiFiManager *wm);
 void webServerCallback();
@@ -50,8 +55,11 @@ void setup()
 
   printConfig(config);
 
+  getName(name, sizeof(name));
   configureWifiManager();
 
+  artnet.setShortName("Demex Tube");
+  artnet.setLongName(name);
   artnet.setArtDmxCallback(onDmxFrame);
   artnet.begin();
 
@@ -62,7 +70,18 @@ void setup()
 
 void loop()
 {
-  handleArtNetPacket(artnet.read());
+  ulong frameStart = millis();
+
+  update();
+
+  ulong frameDuration = millis() - frameStart;
+  ulong delayTime = max(static_cast<ulong>(0), ARTNET_FRAME_TIME_MS - frameDuration);
+  delay(delayTime);
+}
+
+void update()
+{
+  artnet.read();
 
   if (millis() - lastLedUpdate >= MIN_LED_UPDATE_INTERVAL_MS)
   {
@@ -74,8 +93,6 @@ void loop()
 void configureWifiManager()
 {
   pinMode(FORCE_AP_MODE_PIN, INPUT_PULLUP);
-
-  getAPName(apName, sizeof(apName));
 
   wifiManager.setTitle("Demex Tube");
   wifiManager.setShowInfoUpdate(false);
@@ -92,12 +109,12 @@ void configureWifiManager()
   if (digitalRead(FORCE_AP_MODE_PIN) == LOW)
   {
     Serial.println("Forcing AP mode...");
-    wifiManager.startConfigPortal(apName);
+    wifiManager.startConfigPortal(name);
   }
   else
   {
     Serial.println("Autoconnecting to WiFi...");
-    if (!wifiManager.autoConnect(apName))
+    if (!wifiManager.autoConnect(name))
     {
       Serial.println("Failed to connect, starting AP mode...");
     }

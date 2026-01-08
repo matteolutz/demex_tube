@@ -10,6 +10,6 @@
     } while (0)
 
 uint32_t getChipId();
-int getAPName(char *buffer, size_t bufferSize);
+int getName(char *buffer, size_t bufferSize);
 
 #endif // DEMEX_TUBE_UTILS_H

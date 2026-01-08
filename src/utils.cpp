@@ -15,7 +15,7 @@ uint32_t getChipId()
     return chipId;
 }
 
-int getAPName(char *buffer, size_t bufferSize)
+int getName(char *buffer, size_t bufferSize)
 {
     return snprintf(buffer, bufferSize, "DemexTube-%06X", getChipId());
 }
